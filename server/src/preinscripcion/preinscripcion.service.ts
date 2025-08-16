@@ -5,6 +5,7 @@ import { Preinscripcion } from './preinscripcion.entity';
 import { CreatePreinscripcionDto } from './dto/create-preinscripcion.dto';
 import { Aspirante } from '../aspirante/aspirante.entity';
 import { ConstanciaService } from '../constancia/constancia.service';
+import { UpdatePreinscripcionDto } from './dto/update-preinscripcion.dto';
 
 @Injectable()
 export class PreinscripcionService {
@@ -50,4 +51,13 @@ export class PreinscripcionService {
 
     return saved;
   }
+
+  async update(id: number, updatePreinscripcionDto: UpdatePreinscripcionDto) {
+  const preinscripcion = await this.preinscripcionRepository.findOne({ where: { id } });
+
+  if (!preinscripcion) return null;
+
+  const updated = this.preinscripcionRepository.merge(preinscripcion, updatePreinscripcionDto);
+  return this.preinscripcionRepository.save(updated);
+}
 }

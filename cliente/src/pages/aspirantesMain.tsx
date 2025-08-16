@@ -129,21 +129,25 @@ export default function AdminAspirantes() {
   }
  }
 
- const handleEstado = async (id: number, nuevoEstado: "en espera" | "confirmado" | "rechazado") => {
+const handleEstado = async (
+  preinscripcionId: number,
+  nuevoEstado: 'en espera' | 'confirmado' | 'rechazado'
+) => {
   try {
-    const res = await fetch(`http://localhost:3000/aspirante/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ estado_preinscripcion: nuevoEstado })
+    const res = await fetch(`http://localhost:3000/preinscripcion/${preinscripcionId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estado: nuevoEstado }),
     });
 
     if (!res.ok) throw new Error(`Error al cambiar estado a ${nuevoEstado}`);
 
-    setAspirantes((prev) =>
-      prev.map((asp) =>
-        asp.id === id ? { ...asp, estado_preinscripcion: nuevoEstado } : asp
+    // Actualizamos la lista local para reflejar el cambio
+    setAspirantes(prev =>
+      prev.map(asp =>
+        asp.id === preinscripcionId
+          ? { ...asp, estado: nuevoEstado }
+          : asp
       )
     );
   } catch (error) {
