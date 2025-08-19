@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Put, Param, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, Put, Param, ParseIntPipe, NotFoundException, Get } from '@nestjs/common';
 import { PreinscripcionService } from './preinscripcion.service';
 import { CreatePreinscripcionDto } from './dto/create-preinscripcion.dto';
 import { UpdatePreinscripcionDto } from './dto/update-preinscripcion.dto';
@@ -12,6 +12,10 @@ export class PreinscripcionController {
     return this.preinscripcionService.create(createPreinscripcionDto);
   }
   
+  @Get()
+async findAll() {
+  return this.preinscripcionService.findAllWithAspirante();
+}
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -26,3 +30,4 @@ export class PreinscripcionController {
     return updated;
   }
 }
+

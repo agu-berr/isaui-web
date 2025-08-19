@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Preinscripcion } from './preinscripcion.entity';
@@ -6,6 +6,7 @@ import { CreatePreinscripcionDto } from './dto/create-preinscripcion.dto';
 import { Aspirante } from '../aspirante/aspirante.entity';
 import { ConstanciaService } from '../constancia/constancia.service';
 import { UpdatePreinscripcionDto } from './dto/update-preinscripcion.dto';
+
 
 @Injectable()
 export class PreinscripcionService {
@@ -52,12 +53,43 @@ export class PreinscripcionService {
     return saved;
   }
 
-  async update(id: number, updatePreinscripcionDto: UpdatePreinscripcionDto) {
-  const preinscripcion = await this.preinscripcionRepository.findOne({ where: { id } });
+  async update(
+  id: number,
+  updatePreinscripcionDto: UpdatePreinscripcionDto
+) {
+  const preinscripcion = await this.preinscripcionRepository.findOne({ where: { id }, relations: ['aspirante'] });
 
-  if (!preinscripcion) return null;
+  if (!preinscripcion) {
+    throw new NotFoundException(`No se encontró la preinscripción con ID ${id}`);
+  }
 
+  const estadoAnterior = preinscripcion.estado; // Guardamos el estado anterior
+
+  // Actualizamos la preinscripción
   const updated = this.preinscripcionRepository.merge(preinscripcion, updatePreinscripcionDto);
-  return this.preinscripcionRepository.save(updated);
+  const saved = await this.preinscripcionRepository.save(updated);
+
+  // Enviar email solo si el estado cambió y el aspirante tiene email
+  if (
+    saved.estado !== estadoAnterior &&
+    preinscripcion.aspirante?.email
+  ) {
+    try {
+      await this.constanciaService.enviarNotificacionEstado(
+        preinscripcion.aspirante.email,
+        `${preinscripcion.aspirante.nombre} ${preinscripcion.aspirante.apellido}`,
+        saved.estado
+      );
+    } catch (error) {
+      console.error('Error al enviar email de cambio de estado:', error);
+    }
+  }
+
+  return saved;
 }
+  async findAllWithAspirante() {
+    return this.preinscripcionRepository.find({
+      relations: ['aspirante', 'carrera'],
+    });
+  }
 }

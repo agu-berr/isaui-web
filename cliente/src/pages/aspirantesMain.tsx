@@ -29,11 +29,13 @@ import logo2 from "../assets/logo2.png"
 
 interface AspiranteItem {
   id: number;
+  preinscripcionId: number;
   nombre: string;
   apellido: string;
   dni: string;
   carrera: string;
   estado_preinscripcion: string;
+  estado: string;
 }
 
 
@@ -145,7 +147,7 @@ const handleEstado = async (
     // Actualizamos la lista local para reflejar el cambio
     setAspirantes(prev =>
       prev.map(asp =>
-        asp.id === preinscripcionId
+        asp.preinscripcionId === preinscripcionId
           ? { ...asp, estado: nuevoEstado }
           : asp
       )
@@ -155,21 +157,10 @@ const handleEstado = async (
     alert(`No se pudo cambiar el estado a ${nuevoEstado}`);
   }
 };
-  // const handleConfirmar = (id: number) => {
-  //   setAspirantes((prev) => prev.map((asp) => (asp.id === id ? { ...asp, estado: "confirmado" } : asp)))
-  // }
-
-  // const handleRechazar = (id: number) => {
-  //   setAspirantes((prev) => prev.map((asp) => (asp.id === id ? { ...asp, estado: "rechazado" } : asp)))
-  // }
 
   const handleVer = (id: number) => {
     navigate(`/detAspirante/${id}`)
   }
-  // const handleWaiting = (id: number) => {
-  //   setAspirantes((prev) => prev.map((asp) => (asp.id === id ? { ...asp, estado: "pendiente" } : asp)))
-  // }
-
 
   if (loading) return <p className="text-white">Cargando aspirantes...</p>
   if (error) return <p className="text-red-400">{error}</p>
@@ -296,23 +287,23 @@ const handleEstado = async (
                         <td className="py-2 px-3">
                           <div className="flex justify-center gap-1">
                             <Button
-                              onClick={() => handleEstado(aspirante.id, "en espera")}
+                              onClick={() => handleEstado(aspirante.preinscripcionId, "en espera")}
                               className="bg-yellow-500 hover:bg-yellow-600 text-white p-1.5 rounded-lg"
-                              disabled={aspirante.estado_preinscripcion === "en espera"}
+                              disabled={aspirante.estado === "en espera"}
                             >
                               <Clock className="w-4 h-4" />
                             </Button>
                             <Button
-                              onClick={() => handleEstado(aspirante.id, "confirmado")}
+                              onClick={() => handleEstado(aspirante.preinscripcionId, "confirmado")}
                               className="bg-green-500 hover:bg-green-600 text-white p-1.5 rounded-lg"
-                              disabled={aspirante.estado_preinscripcion === "confirmado"}
+                              disabled={aspirante.estado === "confirmado"}
                             >
                               <Check className="w-4 h-4" />
                             </Button>
                             <Button
-                              onClick={() => handleEstado(aspirante.id, "rechazado")}
+                              onClick={() => handleEstado(aspirante.preinscripcionId, "rechazado")}
                               className="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-lg"
-                              disabled={aspirante.estado_preinscripcion === "rechazado"}
+                              disabled={aspirante.estado === "rechazado"}
                             >
                               <XIcon className="w-4 h-4" />
                             </Button>
